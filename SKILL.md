@@ -1,7 +1,6 @@
 ---
 name: resume-jd-matcher
-description: 根据岗位描述（JD，可为图片/文字/链接）与用户原始简历，生成高度匹配、聚焦、简洁的优化版 Markdown 简历，并记录过程中的踩坑点。This skill should be used when the user supplies a JD and an original resume and asks to tailor/optimize/match a resume to that role, or to produce a focused resume version for a specific job posting.
-agent_created: true
+description: 根据岗位描述（JD，可为图片/文字/链接）与用户原始简历，生成高度匹配、聚焦、简洁的优化版 Markdown 简历，并可按公司＋岗位目录导入飞书云盘、更新既有云端简历。This skill should be used when the user supplies a JD and an original resume and asks to tailor/optimize/match a resume to that role, produce a focused resume version for a specific job posting, or archive the tailored resume to Feishu Drive.
 ---
 
 # Resume JD Matcher
@@ -62,7 +61,9 @@ agent_created: true
 - **结构**：保持用户原简历的结构骨架，只替换/重排内容。典型骨架：
   - 第一行 `# 姓名`（一级标题）
   - 第二行：手机/微信 ｜ 邮箱（邮箱用 `[xxx@x.com](mailto:xxx@x.com)` 可点）
-  - `个人优势`（3 条，加粗标题 + 一句，约 40–50 字）
+  - `个人优势`（3 条，加粗标题 + 一句，每条 25–35 字）
+    - 按 HR 5 秒扫读设计 3 个可记忆标签：岗位主线、技术 / 专业能力、标准化 / 提效能力；结合本 JD 与证据强弱命名，不机械套用固定标签。
+    - 每条只表达一个核心卖点，不堆 JD 关键词、客户名、工具名或量化数字；详细证据下沉到工作经历与代表项目。
   - `工作经历`（按公司分段，bullet 写「能力主题」）
   - `代表项目`（4 个左右；标题只写「项目名｜能力定位」，不挂「对应 JD」标签，见 pitfalls #15）
   - `教育与认证`
@@ -92,7 +93,7 @@ agent_created: true
 
 按用户的后续指令执行，常见动作与对应踩坑：
 
-- **精简个人优势**：去重（不在优势段复述下文细节），改成「标题+一句」可扫读，每条约 40–50 字；量化数字下沉到代表项目（见 pitfalls #16）。
+- **精简个人优势**：去重（不在优势段复述下文细节），改成「标题+一句」可扫读，每条 25–35 字；量化数字下沉到代表项目（见 pitfalls #16）。
 - **删除「对应 JD」标注**：交付版把代表项目标题后的「（对应 JD：…）」一律删掉，只留「项目名｜能力定位」（见 pitfalls #15）。
 - **按岗位类型取舍动作**：售前岗砍掉培训、答疑、交付 SOP 等售后动作，只留方案演示、业务价值讲解、反馈迭代、方案/演示材料沉淀；实施/客户成功岗反之。口诀「成交前说的是售前，成交后干的是售后」（见 pitfalls #17）。
 - **全篇去重**：同一工具名/关键词（Codex、Vibe Coding、RAG/Agent/MCP）只打在最强的项目上一次；优势段不复述经历细节；同一段多条 bullet 按 JD 支柱分工（一条管需求、一条管演示），别都写「演示」（见 pitfalls #18）。
@@ -114,17 +115,19 @@ agent_created: true
     --user-data-dir=/tmp/cr-<每次换新> --no-pdf-header-footer --print-to-pdf="out.pdf" "file:///tmp/resume.html"
   ```
   无 Chrome/Edge 时再退回 fpdf2（快）或 weasyprint（美）。注意：`which` 查不到 chromium 不等于没装 Chrome（在 `/Applications`）；CSS 必须显式 `background:#ffffff`；页数用 `pip3 install pypdf` 统计，别用正则；微调后换全新 user-data-dir 防缓存。详见 `references/pitfalls.md` #12。
+- **写入飞书云盘**：当用户要求归档到飞书云盘时，读取 `references/feishu-delivery.md`，按「读取最新本地简历 → 检查或创建公司＋岗位目录 → 生成删除姓名 H1 的临时副本 → 以纯姓名作为文档标题导入在线 docx → 核验 → 交付链接」执行；原始本地 Markdown 不删姓名 H1，后续修改必须重读并更新原云文档，不重复导入。
 
 ## Resources
 
 - `references/pitfalls.md`：**必读**。完整踩坑清单（自贬规模、高层夸大、无证据硬编、敏感词避雷、业务成果雷、链接处理、去重、用词、并行编辑冲突、PDF 路线等），每次执行前扫一遍。
+- `references/feishu-delivery.md`：用户要求写入飞书云盘、按公司＋岗位建目录归档或继续编辑云端简历时必读。
 - `assets/resume-template.md`：输出 Markdown 简历的骨架模板与改造示例，可直接复制后填充；**其中数字与客户名均为占位符**，只可替换为 Step 1 冻结清单里的事实。
 
 ## 执行检查清单（交付前自检）
 
 - [ ] **事实回查已执行（Step 5，不可跳过）**：已冻结原简历事实清单、终稿逐条映射回原文、事实性差异清单已报告用户、未经确认的差异已删除；Step 6 迭代后已重跑
 - [ ] 已收集 4 类关键信息（或用户已提供等价信息）
-- [ ] 个人优势 3 条、每条约 40–50 字、可扫读、无与下文重复的细节
+- [ ] 个人优势 3 条、每条 25–35 字、每条一个核心卖点，形成岗位主线 / 技术能力 / 标准化或提效三个可记忆标签，无与下文重复的细节
 - [ ] 代表项目约 4 个、聚焦主线、无堆砌、标题已删除「对应 JD」标注
 - [ ] 所有 URL 为 Markdown 内嵌可点
 - [ ] 无夸大（高层叙事/量化数字均有真实依据）—— 以 Step 5 事实回查结果为准，不做模型自评
@@ -135,3 +138,4 @@ agent_created: true
 - [ ] 第一行 `# 姓名`、文件名为 `名字_岗位名称.md`
 - [ ] 邮箱为可点 mailto
 - [ ] 若导出 PDF：白底、无截断、链接可点、页数合理（单页优先）
+- [ ] 若写入飞书云盘：目录名准确；文档标题仅为 `季忠健`，不含岗位名称；导入副本已删除姓名 H1 且联系方式成为正文首行；原始本地 Markdown 未改变；导入状态与云端全文已核验；目录与文档链接均已交付；后续编辑已重读并更新原文档
